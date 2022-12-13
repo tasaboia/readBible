@@ -1,0 +1,8 @@
+{
+    "app_id": "readbible-uanna",
+    "config_version": 20210101,
+    "name": "readBible",
+    "location": "BR-SP",
+    "provider_region": "aws-sa-east-1",
+    "deployment_model": "LOCAL"
+}
