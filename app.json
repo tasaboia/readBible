@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "readBible",
+    "slug": "readBible",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "package": "com.tasaboia.readBible"
+    }
+  }
+}
