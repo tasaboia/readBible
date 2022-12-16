@@ -1,16 +1,16 @@
 import Realm from "realm";
-import { biblePiecesSchema } from "./schemas/bibleSchema";
+import { dailyPlanSchema, dailyPlan_booksSchema } from "./schemas/dailyBible";
 
 const getRealm = async () => {
   const app = new Realm.App({ id: "readbible-lfrxd" });
   const credentials =  Realm.Credentials.emailPassword("tainasaboia@gmail.com", "Mnt1991****");
   const User = await app.logIn(credentials);
-
-  return await Realm.open({
-    path: "BiblePlan",
-    schema: [biblePiecesSchema],
-    deleteRealmIfMigrationNeeded: true, 
+  
+  const realm = await Realm.open({
+    path: "AnnualPlan",
+    schema: [dailyPlanSchema, dailyPlan_booksSchema]
   });
+   return realm
 };
 
 export default getRealm;

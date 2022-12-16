@@ -26,8 +26,8 @@ export const plan = {
     },
 }
 
-export const Meses = [
-    "janeiro",
+export const Month = [
+    "Janeiro",
     "Fevereiro",
     "Março",
     "Abril",

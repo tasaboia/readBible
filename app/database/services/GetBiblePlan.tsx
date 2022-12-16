@@ -1,26 +1,25 @@
+import { useMainContext } from "../context";
 import getRealm from "../realm";
-import { biblePieces } from "../schemas/type";
+import { dailyPlan } from "../schemas/type";
 
-const GetAllBiblePlan= async () => {
-  const realm = await getRealm();
-  return realm
-    .objects<biblePieces>("biblePieces")
-    .sorted([
-      ["day", false],
-      ["month", false],
-    ]);
+
+const GetAllDailyBible = async () => {
+  const realm = getRealm();
+  return (await realm)
+     .objects<dailyPlan>("dailyPlan")
+     .sorted([
+       ["order", false],
+     ]);
 };
-
-
 
 export const ClearAll = async () => {
   const realm = await getRealm();
   realm.write(() => {
     // Delete all instances of Cat from the realm.
-    realm.delete(realm.objects("biblePieces"));
+    realm.delete(realm.objects("dailyPlan"));
   });
 };
 
 
-export default GetAllBiblePlan;
+export default GetAllDailyBible;
 

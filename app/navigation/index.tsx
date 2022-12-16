@@ -7,7 +7,6 @@ import colors from '../styles/colors';
 import { Bible } from '../screens/Bible';
 import { Home } from '../screens/Home';
 import { Register } from '../screens/Register';
-import { getVerse } from '../api/bible/api';
 const Tab = createBottomTabNavigator();
 
 export default function Tabs() {

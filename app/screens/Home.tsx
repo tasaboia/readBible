@@ -1,65 +1,118 @@
-import { AddIcon, Button, ScrollView, Text } from 'native-base';
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { getVerse } from '../api/bible/api';
-import { IBible, IRequestBible } from '../api/types';
+import { Button, Text, ScrollView } from 'native-base';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, StyleSheet, InteractionManager } from 'react-native';
 import colors from '../styles/colors';
 import { shadows } from '../styles/shadows';
-import uuid from 'react-native-uuid';
-import Loading from '../components/Loading';
-import { plan } from '../utils/contants';
 import LetterSizeMenu from '../components/LetterSizeMenu';
-import GetAllBiblePlan from '../database/services/GetBiblePlan';
+import getRealm from '../database/realm';
+import { dailyPlan, dailyPlan_books } from '../database/schemas/type';
+import Loading from '../components/Loading';
+import uuid from 'react-native-uuid';
+import { IBible, IRequestBible } from '../api/types';
+import { getChapter, getChapterRange, getMultipleRanges, GetVerse } from '../api/bible/api'
+import { http } from '../api/http';
 import { useMainContext } from '../database/context';
-import { biblePieces } from '../database/schemas/type';
-import { disableErrorHandling } from 'expo';
+import { layoutPropsList } from 'native-base/lib/typescript/components/composites/Typeahead/types';
 
 export const Home = () => {
     const [isLoading, setIsLoading] = useState(false)
-
-    const [firstBook, setFirstBook] = useState<IBible>()
-    const [secondBook, setSecondBook] = useState<IBible>()
-    const [thirdBook, setThirdBook] = useState<IBible>()
+    const [daily, setDaily] = useState<dailyPlan>()
     const [ letterSize, setLetterSize] = useState("md")
+    const [dailyReference, setDailyReference] = useState("")
 
-  
-    useEffect( ()=> {
-        setIsLoading(true)
-        try {
-            handleFirst()
-        } catch (error) {
-            
-        }
-        try {
-            handleSecond()
-        } catch (error) {
-            
-        }
-        try {
-            handleThird()
-        } catch (error) {
-            
-        }
-        setIsLoading(false)
+    const realm = useMainContext()
 
+    //todas as referencias de dias e ordem do ano já vao está cadastrada no banco de dados (logo, é necessário que esses dados sejam recebidos no inicio)
+    const [bible, setBible] = useState<IBible[]>([])
+
+    const date = new Date();
+    let currentDay = date.getDate()
+    let currenteMonth = date.getMonth() + 1;
+
+    useEffect(() => {
+        GetDailyPlan(currentDay, currenteMonth);
+        handleDailyReference()
     },[])
 
-    async function handleFirst () {
-        const res1 = await getVerse(plan.frist)
-        setFirstBook(res1)
+    async function GetDailyPlan (day:number, month: number) {
+        const realm = await getRealm();
+        let dailyPlan: React.SetStateAction<dailyPlan> | Realm.Results<dailyPlan_books & Realm.Object<unknown, never>>
+        try{
+            dailyPlan =  realm.objects<dailyPlan_books>("dailyPlan").filtered(`day == 2 && month == 1`);
+        }catch (error) {
+            console.log(error)
+        }finally{
+            setDaily(dailyPlan)
+            if(daily && bible.length == 0){
+                handleReference()
+            }
+        }
     }
 
-    async function handleSecond () {
-        const res2 = await getVerse(plan.second)
-        setSecondBook(res2)
-   }
+    
 
-    async function handleThird () {
-        const res3 = await getVerse(plan.third)
-        setThirdBook(res3)
+    // Essa função normaliza o registro no banco de dados para uma referencia biblica possivel de ser chamada na API da biblia
+    async function handleReference () {
+        daily[0].books.forEach( async (item, index) => {
+            if(item.chapterStart === item.chapterEnd){
+                if(item.verseEnd === item.verseStart && item.verseStart === "0") {
+                    const allChapter = await getChapter(item.book, item.chapterStart)
+                    bible.push(allChapter)
+                } else {
+                    const rangeChapter = await getChapterRange(item.book, item.chapterStart, item.verseStart, item.verseEnd)
+                    bible.push(rangeChapter)
+                }
+            } else {
+                
+                 if (item.verseEnd === item.verseStart && item.verseStart === "0") {
+                    const stringRequest = handleStringMultipleRanges(item.chapterStart, item.chapterEnd)
+                    const diferentChapter = await getMultipleRanges(item.book, stringRequest)
+                    bible.push( diferentChapter)
+                 } else {
+                    // tem que criar uma função que vai cortar um array
+                 }
+            }
+        })
     }
 
-   
+    // essa função gera o titulo de todas as passagens biblicas que serão lidas no dia atual
+    function handleDailyReference () {
+        let reference = ``
+        if(daily) {
+            daily[0].books.map((item, index) => {
+                reference += `; ${item.book} `
+                if(item.chapterStart === item.chapterEnd){
+                    if(item.verseEnd != item.verseStart) {
+                        reference += `${item.chapterStart}: ${item.verseStart}-${item.verseEnd}`
+                    }
+                    reference += `${item.chapterStart}`
+                }else{
+                    if(item.verseEnd != item.verseStart) {
+                        reference += `${item.chapterStart}-${item.chapterEnd}: ${item.verseStart}-${item.verseEnd}`
+                    }
+                    reference += `${item.chapterStart}-${item.chapterEnd}`
+                }
+            })
+        }
+
+        reference = reference.slice(1);
+        setDailyReference(reference)
+    }
+
+    // essa função deixa apta a string que sera usada para buscar multiplos valores na api da biblia
+    function handleStringMultipleRanges (start: string, end: string) {
+        const startInt = parseInt(start)
+        const endInt = parseInt(end)
+        let requestString = `${startInt}`
+        for(let i = startInt; i < endInt; i++){
+            requestString += `,${i+1}`
+        }
+        return requestString
+    }
+
+    //função que vai alterar a leitura de hoje para lida.. o VALOR read vai para true
+
+    
   return (
     <View style={styles.container}>
         <View style={{flexDirection: "row", justifyContent: "center"}}>
@@ -67,26 +120,32 @@ export const Home = () => {
             <Text style={{fontSize: 20, color: colors.purple}}>Bible</Text>
         </View>
         <View style={styles.main}>
-            <View style={{flexDirection: "row"}}>
-                <Text style={styles.title}>Leitura de hoje</Text>
+            <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                <View style={{flexDirection: "column" , maxWidth: "80%"}}>
+                    <Text style={styles.title}>Leitura de hoje: </Text>
+                    <Text style={{textAlign: "center", marginTop: 4}}>{dailyReference}</Text>
+                </View>
                 <LetterSizeMenu setLetterSize={setLetterSize}/>
             </View>
             <View style={styles.cardContainer}>
-                {isLoading 
-                ? <Loading/> 
+                 {isLoading 
+                ? <View style={{ margin: 10 }}><Loading/></View> 
                 : <ScrollView showsVerticalScrollIndicator style={styles.card}>
-                    {firstBook &&
+                    {bible &&
                         <>
-                            <View style={{flexDirection: "row"}}>
-                                <Text  fontSize={letterSize} style={styles.bookTitle}>{firstBook.reference}</Text>
-                            </View>
-
-                        
-                             { firstBook.verses.map( (item, index) => (
-                                <View key={uuid.v1().toString()} style={{flexDirection: "row"}} >
-                                    <Text style={styles.textContainer} fontSize={letterSize} key={uuid.v4().toString()}>{item.verse}</Text>
-                                    <Text style={styles.textContainer} fontSize={letterSize} key={uuid.v4().toString()}>{item.text}</Text>
-                                </View>
+                             { bible.map( (item, index) => (
+                                <>
+                                {item.verses.map((i, index ) => (
+                                    <>
+                                        { i.verse === 1 ? <Text key={uuid.v4().toString()}  fontSize={letterSize} style={styles.bookTitle} >{i.book_name + " " + i.chapter}</Text> : null}
+                                        <View key={uuid.v4().toString()} style={{flexDirection: "row"}} >
+                                            <Text style={styles.verse} fontSize={letterSize} key={uuid.v4().toString()}>{`${i.verse}.`}</Text>
+                                            <Text style={styles.textContainer} fontSize={letterSize} key={uuid.v4().toString()}>{i.text}</Text>
+                                        </View>
+                                    </>
+                                ))} 
+                                
+                                </>
                             ))}    
                         </>
                     }
@@ -108,7 +167,7 @@ const styles = StyleSheet.create ({
     },
     container : {
         height: "100%",
-        padding: 20,
+        padding: 10,
     },
     bookTitle:{
         marginTop: 8,
@@ -119,21 +178,19 @@ const styles = StyleSheet.create ({
         flexShrink: 1
     },
     verse:{
-        marginTop: 4,
-
+        marginHorizontal: 2,
     },
     main: {
         marginTop: 10,
     },
     card: {
         width: "100%",
-        height: "85%",
-        padding: 20,
+        paddingHorizontal: 20,
         
     },
     cardContainer: {
         backgroundColor: colors.white,
-        height: "90%",
+        height: "88%",
 
         borderTopRightRadius: 20,
         borderBottomLeftRadius: 20,

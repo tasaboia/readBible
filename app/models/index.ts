@@ -1,6 +1,6 @@
 import {createRealmContext} from '@realm/react';
-import { biblePiecesSchema } from '../database/schemas/bibleSchema';
+import { dailyBibleSchema } from '../database/schemas/dailyBible';
 
 export const BiblePlanRealmContext = createRealmContext({
-  schema: [biblePiecesSchema],
+  schema: [dailyBibleSchema],
 });

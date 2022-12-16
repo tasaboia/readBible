@@ -8,12 +8,11 @@ import RealmContextProvider from './database/context';
 
 export const AppWrapperNonSync = () => {
   return (
-    
     <SafeAreaView style={styles.screen}>
       <NavigationContainer>
         <NativeBaseProvider>
           <RealmContextProvider>
-            <Tabs />
+             <Tabs/>
           </RealmContextProvider>
         </NativeBaseProvider>
       </NavigationContainer>

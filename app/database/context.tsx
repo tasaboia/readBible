@@ -20,7 +20,6 @@ import getRealm from "./realm";
     useEffect(() => {
       (async () => {
         setRealm(await getRealm());
-        console.log(realm.path)
       })();
     }, []);
   

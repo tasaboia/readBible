@@ -7301,15 +7301,22 @@ react-native-swipe-gestures@^1.0.5:
   resolved "https://registry.npmjs.org/react-native-swipe-gestures/-/react-native-swipe-gestures-1.0.5.tgz"
   integrity sha512-Ns7Bn9H/Tyw278+5SQx9oAblDZ7JixyzeOczcBK8dipQk2pD7Djkcfnf1nB/8RErAmMLL9iXgW0QHqiII8AhKw==
 
+react-native-tab-view@^3.3.4:
+  version "3.3.4"
+  resolved "https://registry.yarnpkg.com/react-native-tab-view/-/react-native-tab-view-3.3.4.tgz#856d4527f3bbf05e2649302ec80abe9f2f004666"
+  integrity sha512-rceAYWpHa6knA7tsTnnjlcOxlCErR4F+yXQPpNm125IvYFyv09YRhE5uMU2IzyPIQ1CJvADCHurF3KySzVI+4Q==
+  dependencies:
+    use-latest-callback "^0.1.5"
+
 react-native-uuid@^2.0.1:
   version "2.0.1"
   resolved "https://registry.npmjs.org/react-native-uuid/-/react-native-uuid-2.0.1.tgz"
   integrity sha512-cptnoIbL53GTCrWlb/+jrDC6tvb7ypIyzbXNJcpR3Vab0mkeaaVd5qnB3f0whXYzS+SMoSQLcUUB0gEWqkPC0g==
 
-react-native-webview@^11.25.1:
-  version "11.26.0"
-  resolved "https://registry.npmjs.org/react-native-webview/-/react-native-webview-11.26.0.tgz"
-  integrity sha512-4T4CKRm8xlaQDz9h/bCMPGAvtkesrhkRWqCX9FDJEzBToaVUIsV0ZOqtC4w/JSnCtFKKYiaC1ReJtCGv+4mFeQ==
+react-native-webview@11.23.1:
+  version "11.23.1"
+  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-11.23.1.tgz#6a4bf2620e491dd4fecf4e6dc079005117fae12c"
+  integrity sha512-bmqsdg4RYOUYD37R9XTrQALm7eD62KbLNPRfgvpLGd1SjaurvAjjsLrLN4mt6yOtKOMKeZvlcAl3x6De6cCQsA==
   dependencies:
     escape-string-regexp "2.0.0"
     invariant "2.2.4"
