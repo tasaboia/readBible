@@ -19,9 +19,7 @@ export const Home = () => {
     const [daily, setDaily] = useState<dailyPlan>()
     const [ letterSize, setLetterSize] = useState("md")
     const [dailyReference, setDailyReference] = useState("")
-
     const realm = useMainContext()
-
     //todas as referencias de dias e ordem do ano já vao está cadastrada no banco de dados (logo, é necessário que esses dados sejam recebidos no inicio)
     const [bible, setBible] = useState<IBible[]>([])
 
@@ -33,7 +31,6 @@ export const Home = () => {
         GetDailyPlan(currentDay, currenteMonth);
         handleDailyReference()
     },[])
-
     async function GetDailyPlan (day:number, month: number) {
         const realm = await getRealm();
         let dailyPlan: React.SetStateAction<dailyPlan> | Realm.Results<dailyPlan_books & Realm.Object<unknown, never>>
@@ -45,6 +42,8 @@ export const Home = () => {
             setDaily(dailyPlan)
             if(daily && bible.length == 0){
                 handleReference()
+
+                
             }
         }
     }
